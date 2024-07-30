@@ -3,13 +3,14 @@ using Telegram.Bot.Types;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;
+using System.Runtime.CompilerServices;
+using Telegram.Bot.Types.InlineQueryResults;
 
 namespace TG_Bot_Template
 {
     public class TelegramBotService(IConfiguration conf, ILogger<TelegramBotService> logger) : TelegramBotClient(conf.GetValue<string>("tg-token")), IHostedService
     {
         private static Dictionary<long, string> _userStates = new Dictionary<long, string>();
-        private static Dictionary<int, string> _giveawaySettingMessages = new();
 
         // For add any property, u should to add it in StartAsync func, like this:
         // _PROPERTY_NAME = PROPERTY_NAME_FROM_CLASS
@@ -40,13 +41,69 @@ namespace TG_Bot_Template
         }
         private static async Task HandleUpdateAsync(ITelegramBotClient botClient, Message message)
         {
+            try
+            {
+                string messageText = message.Text ?? message.Caption;
+                switch (messageText)
+                {
+                    case "/start":
+                        await botClient.SendTextMessageAsync(message.From.Id, "Start");
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{ex.Message}");
+                _logger.LogError($"Stack: {ex.StackTrace}");
+            }
         }
 
         private static async Task QueryUpdateHandler(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-        { }
+        {
+            try
+            {
+                string queryData = callbackQuery.Data;
+                switch (queryData)
+                {
+                    case "test":
+                        await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Tested");
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{ex.Message}");
+                _logger.LogError($"Stack: {ex.StackTrace}");
+            }
+        }
 
         private static async Task InlineUpdateHandler(ITelegramBotClient botClient, InlineQuery inlineQuery)
-        { }
+        {
+            try
+            {
+                string inlineData = inlineQuery.Query;
+                switch (inlineData)
+                {
+                    case "test":
+                        await botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] { });
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{ex.Message}");
+                _logger.LogError($"Stack: {ex.StackTrace}");
+            }
+        }
 
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -55,7 +112,7 @@ namespace TG_Bot_Template
             // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
             ReceiverOptions receiverOptions = new()
             {
-                AllowedUpdates = [UpdateType.Message, UpdateType.CallbackQuery] // receive all update types except ChatMember related updates
+                AllowedUpdates = [UpdateType.Message, UpdateType.CallbackQuery, UpdateType.InlineQuery] // receive all update types except ChatMember related updates
             };
 
             _logger = logger;
@@ -76,7 +133,7 @@ namespace TG_Bot_Template
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            logger.Log(LogLevel.Information, $"Stopping service {this.GetType().Name}");
+            logger.Log(LogLevel.Information, $"Stopping service");
             await this.LogOutAsync(cancellationToken);
         }
 
