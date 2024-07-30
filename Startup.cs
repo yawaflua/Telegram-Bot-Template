@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting.Server;
 using System;
 
-namespace TG_Bot_Template
+namespace $safeprojectname$
 {
     /// <summary>
     /// Startup class for ASP.NET with setting and configuration

@@ -8,17 +8,16 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["TG-Bot-Template.csproj", "."]
-RUN dotnet restore "./TG-Bot-Template.csproj"
 COPY . .
+RUN dotnet restore
 WORKDIR "/src/."
-RUN dotnet build "./TG-Bot-Template.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./TG-Bot-Template.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TG-Bot-Template.dll"]
+ENTRYPOINT ["dotnet", "$safeprojectname$"]

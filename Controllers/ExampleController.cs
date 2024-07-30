@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace TG_Bot_Template.Controllers
+namespace $safeprojectname$.Controllers
 {
     /// <summary>
     /// Example controller
